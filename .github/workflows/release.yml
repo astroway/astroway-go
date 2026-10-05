@@ -1,0 +1,30 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - run: go test ./...
+      # The tag is the release; asking the proxy for it makes pkg.go.dev index it now, not on first use.
+      - name: Warm proxy.golang.org and pkg.go.dev
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          for i in 1 2 3 4 5; do
+            GOPROXY=https://proxy.golang.org GOFLAGS=-mod=mod go list -m "github.com/astroway/astroway-go@${TAG}" && break
+            sleep 30
+          done
+          curl -s -o /dev/null -w "pkg.go.dev fetch: %{http_code}\n" -X POST "https://pkg.go.dev/fetch/github.com/astroway/astroway-go@${TAG}" || true
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" --title "$TAG" --notes-from-tag --verify-tag
