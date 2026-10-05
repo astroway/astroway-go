@@ -1,0 +1,9 @@
+*.test
+*.out
+/examples/**/bin/
+.env
+ROADMAP.md
+docs/
+plans/
+handoff*
+_unreleased/
