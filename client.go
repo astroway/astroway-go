@@ -29,7 +29,7 @@ import (
 )
 
 // Version is the SDK version, sent in the User-Agent.
-const Version = "0.1.0"
+const Version = "0.2.0"
 
 // DefaultBaseURL is the production API root.
 const DefaultBaseURL = "https://api.astroway.info/v1"
